@@ -1,0 +1,13 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="container border">
+    <form action="{{HTTP_HOST}}/profile_picture_change/{{profile_id}}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+          {{ form }}
+          <br><br>
+          <input type="submit">
+      </form>
+
+</div>
+{% endblock %}

@@ -1,0 +1,169 @@
+
+{% extends 'main/base.html' %}
+{% load static %}
+{% block content %}
+<div class="container">
+    <div class="profile-info-container">
+        
+        <table>
+        <tr>
+            {% if profile.image %}
+            <td rowspan="2"><img src="{{profile.image.url}}" width="200"></td>
+            {% else %}
+            <td rowspan="2"><img src="#" width="200"></td>
+            {% endif %}
+            <td>{{profile_user.first_name}}</td>
+            <td></td>
+            <td> {{profile_user.last_name}}</td>
+            <td>
+                <form action="{{HTTP_HOST}}/follow/{{profile.id}}" method="post">
+                    {% csrf_token %}
+                    {% if user.profile.id != profile.id %}
+                    <div class="add-post-links">
+                        {% if profile.id not in profile_friends %}
+                        <button type="submit" >Obserwuj!</button>
+                        {% else %}
+                        <button type="submit" >Już nie obserwuj</button>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </form>
+            </td>
+        </tr>
+        {% if profile.user.id == user.id %}
+        <tr>
+            
+            
+            
+        </tr>
+        <tr>
+            
+            <td style="text-align: center;"><a href="/profile_picture_change/{{profile.id}}">Change profile picture</a></td>
+            <td></td>
+            
+        </tr>
+        {% endif %}
+        </table>
+    </div>
+
+
+
+    <div class="profile-page-posts-container">
+        <div class="comment-section-info">
+            Posty użytkownika:
+        </div>
+        {% if profile.user.id == user.id%}
+        <div class="write-post-container">
+            <a href="{{HTTP_HOST}}/profile/{{request.user.id}}">
+            <div class="user-profile">
+                {% if request.user.profile.image %}
+                <img src="{{request.user.profile.image.url}}">
+                {% else %}
+                <img src="#">
+                {% endif %}
+                <div>
+                    <p>{{request.user.first_name}} {{request.user.last_name}}</p>
+                    
+                </div>  
+            </div>
+            </a>
+            <div class="post-input-container">
+                <form action="/create_post" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form.description }}
+                    <div class="add-post-links">
+                        <label>
+                            <input type="file" name="image" id="id_image" style="display: none;">
+                            <input type="hidden" name="current_url" value="{{HTTP_HOST}}/profile/{{request.user.id}}">
+                            <img src="{% static 'photo.png' %}" style="cursor: pointer;">
+                            
+                        </label>
+                        <button type="submit" >Submit</button>
+                    </div>
+                    
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+        {% for post in posts_paginate %}
+            <div class="post-container">
+                <a href="{{HTTP_HOST}}/profile/{{post.creator.id}}">
+                    <div class="user-profile">
+                        {% if post.creator.profile.image %}
+                        <img src="{{post.creator.profile.image.url}}">
+                        {% else %}
+                        <img src="#">
+                        {% endif %}
+                    <div>
+                        <p>{{post.creator.first_name}} {{post.creator.last_name}}</p></a>
+                        <span>{{post.creation_date}}</span>
+                    </div>
+                </a>  
+                </div>
+                {% if post.image %}
+                <p class="post-text">{{post.description}}</p>
+                <a href="/post/{{post.id}}"><img src="{{post.image.url}}" class="post-img"></a>
+                {% else %}
+                <a href="/post/{{post.id}}"><p class="post-text">{{post.description}}</p></a>
+                {% endif %}
+                <div class="post-row">
+                    <div class="activity-icons">
+                        <div>
+                            
+                            <form action="{{HTTP_HOST}}/like_post/{{post.id}}" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" value="{{user.id}}" name="user_id">
+                                <input type="hidden" value="{{post.id}}" name="post_id">
+                                <input type="hidden" value="profile/{{post.creator.id}}" name="current_url">
+                                <button type="submit" style="border: none; background: none; cursor: pointer;">
+                                    {% if post.id in user_liked_posts %}
+                                    <img src="{% static 'like-blue.png' %}">
+                                    {% else %}
+                                    <img src="{% static 'like.png' %}">
+                                    {% endif %}
+                                </button>
+                                {{post.amount_of_likes}}
+                            </form>
+                        </div>
+                        <div>
+                            <form action="{{HTTP_HOST}}/post/{{post.id}}">
+                                <button type="submit" style="border: none; background: none; cursor: pointer;">
+                                    <img src="{% static 'comments.png' %}">
+                                </button>
+                                {{post.amount_of_comments}}
+                            </form>
+                        </div>
+                    </div>
+                    <div class="post-profile-icon">
+                        {% if request.user.profile.image %}
+                        <img src="{{request.user.profile.image.url}}">
+                        {% else %}
+                        <img src="#">
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <div class="paginator-container">
+                <div class="paginator-navs">
+            
+                    {% if posts_paginate.has_previous %}
+                    <button type="submit" onclick="window.location.href='?page=1'">&laquo; First</button>
+                    <button type="submit" onclick="window.location.href='?page={{ posts_paginate.previous_page_number }}'">Previous</button>
+                    {% endif %}
+                
+                    Page {{ posts_paginate.number }} of {{ posts_paginate.paginator.num_pages }}
+                
+                    {% if posts_paginate.has_next %}
+                    <button type="submit" onclick="window.location.href='?page={{ posts_paginate.next_page_number }}'">Next</button>
+                    <button type="submit" onclick="window.location.href='?page={{ posts_paginate.paginator.num_pages }}'">Last &raquo;</button>
+                    {% endif %}
+                </div>
+            </div>
+
+    </div>
+
+</div>
+{% endblock %}

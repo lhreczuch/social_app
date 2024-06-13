@@ -1,0 +1,26 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+
+<div class="left-sidebar"></div>
+<div class="main-content">
+<h1>Wyniki wyszukiwania dla: "{{query}}"</h1>
+{% for result_user in searched_users %}
+    <a href="{{HTTP_HOST}}/profile/{{result_user.id}}">
+    <div class="user-result-container">
+        
+            <div class="user-profile">
+            <img src="{{result_user.profile.image.url}}">
+                <div>
+                    <p>{{result_user.first_name}} {{result_user.last_name}}</p></a>
+                </div>
+            </div>
+    </div>
+    </a>    
+{% endfor %}
+</div>
+<div class="right-sidebar"></div>
+</div>
+{% endblock %}
